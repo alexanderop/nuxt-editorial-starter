@@ -1,0 +1,109 @@
+import { expect, test } from '@playwright/test'
+
+test.use({ reducedMotion: 'no-preference' })
+
+async function opacity(locator: import('@playwright/test').Locator) {
+  return locator.evaluate((element) => Number(getComputedStyle(element).opacity))
+}
+
+test('first visit types the wordmark, settles, and does not replay on return', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('/')
+  await expect(page.locator('main')).toHaveClass(/home-intro/)
+  await expect(page.locator('main')).not.toHaveClass(/home-intro/)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await page.getByRole('link', { name: 'Start reading', exact: true }).click()
+  await page.getByRole('link', { name: 'Fieldnotes home' }).click()
+  await expect(page.locator('main')).not.toHaveClass(/home-intro/)
+  await page.reload()
+  await expect(page.locator('main')).not.toHaveClass(/home-intro/)
+  expect(errors).toEqual([])
+})
+
+test('normal motion releases post opacity after entrance, filtering, and load more', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(page.locator('main')).not.toHaveClass(/home-intro/)
+  const rows = page.locator('.home-feed .post-row')
+  await rows.nth(1).hover()
+  await expect.poll(() => opacity(rows.first())).toBe(0.36)
+  await expect.poll(() => opacity(rows.nth(1))).toBe(1)
+  await page.getByRole('heading', { level: 1 }).hover()
+  await expect.poll(() => opacity(rows.first())).toBe(1)
+  await page.getByRole('button', { name: 'Design', exact: true }).click()
+  await rows.first().hover()
+  await expect.poll(() => opacity(rows.nth(1))).toBe(0.36)
+  await page.getByRole('button', { name: 'All', exact: true }).click()
+  await page.getByRole('button', { name: 'Load more' }).click()
+  await expect(rows).toHaveCount(12)
+  await rows.last().hover()
+  await expect.poll(() => opacity(rows.nth(10))).toBe(0.36)
+  await page.keyboard.press('Tab')
+  await rows.first().focus()
+  await expect.poll(() => opacity(rows.nth(1))).toBe(0.35)
+})
+
+test('footer and workbench hover highlight independently of selection', async ({ page }) => {
+  await page.goto('/')
+  const tabs = page.getByRole('tablist', { name: 'Visual notes' }).getByRole('tab')
+  await tabs.nth(1).hover()
+  await expect.poll(() => opacity(tabs.first())).toBe(0.35)
+  await expect(tabs.first()).toHaveAttribute('aria-selected', 'true')
+  await expect.poll(() => opacity(tabs.nth(1).locator('.workbench-arrow'))).toBe(1)
+  await tabs.nth(1).click()
+  await page.getByRole('heading', { name: 'From the workbench' }).hover()
+  await expect.poll(() => opacity(tabs.first())).toBe(1)
+  await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true')
+  const footer = page.locator('.footer-grid')
+  await footer.getByRole('link', { name: 'Nuxt ↗', exact: true }).hover()
+  await expect
+    .poll(() => opacity(footer.getByRole('link', { name: 'Journal', exact: true })))
+    .toBe(0.35)
+  await page.keyboard.press('Tab')
+  await footer.getByRole('button', { name: 'Find a note' }).focus()
+  await expect
+    .poll(() => opacity(footer.getByRole('link', { name: 'Nuxt ↗', exact: true })))
+    .toBe(0.35)
+})
+
+test('article entrance plays on direct visits and article-to-article navigation', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    document.addEventListener('animationstart', (event) => {
+      if (event.animationName !== 'article-enter') return
+      const target = event.target
+      if (target instanceof HTMLElement && target.tagName === 'H1')
+        target.dataset.entranceObserved = 'true'
+    })
+  })
+  await page.goto('/blog/building-for-the-long-way-round')
+  const title = page.getByRole('heading', { level: 1 })
+  await expect(title).toHaveAttribute('data-entrance-observed', 'true')
+  await expect.poll(() => opacity(title)).toBe(1)
+  await expect(title).toHaveCSS('transform', 'none')
+  await page.getByRole('region', { name: 'Keep exploring' }).getByRole('link').first().click()
+  await expect(title).toHaveText('A small case for local-first software')
+  await expect(title).toHaveAttribute('data-entrance-observed', 'true')
+  await expect.poll(() => opacity(title)).toBe(1)
+  await page.getByRole('link', { name: 'Fieldnotes home' }).click()
+  await page.getByRole('link', { name: 'Start reading', exact: true }).click()
+  await expect(title).toHaveText('Building for the long way round')
+  await expect(title).toHaveAttribute('data-entrance-observed', 'true')
+  await expect.poll(() => opacity(title)).toBe(1)
+})
+
+test('reduced motion skips article entrance and deep links remain readable', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/blog/building-for-the-long-way-round#storage-at-the-edge')
+  const title = page.getByRole('heading', { level: 1 })
+  await expect(title).toHaveCSS('animation-name', 'none')
+  await expect(title).toHaveCSS('opacity', '1')
+  await expect(
+    page.getByRole('heading', { name: 'Storage at the edge', exact: true }),
+  ).toBeInViewport()
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
