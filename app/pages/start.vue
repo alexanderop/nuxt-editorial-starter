@@ -32,7 +32,7 @@ useHead({
       </p>
       <div class="code-block">
         <div class="code-toolbar">content/blog/your-first-note.md</div>
-        <pre><code>---
+        <pre tabindex="0" role="region" aria-label="Article frontmatter example"><code>---
 title: Your first note
 description: One useful idea, written down.
 date: '2026-10-02'

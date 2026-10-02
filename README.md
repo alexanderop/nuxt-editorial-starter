@@ -37,7 +37,7 @@ Set `NUXT_PUBLIC_SITE_URL=https://your-domain.example` in deployment to generate
 
 ## Customize
 
-Edit `shared/site.ts` for branding, navigation, categories, featured article, and optional sections. Adjust design tokens in `app/assets/css/main.css`. Replace the lantern in `app/components/PixelLantern.vue` and `public/favicon.svg`.
+Edit `shared/site.ts` for branding, navigation, categories, featured article, and optional sections. Adjust design tokens in `app/assets/css/tokens.css`. Follow [the design-system policy](docs/design-system.md) for shared controls, semantic utilities, and lint checks. Replace the lantern in `app/components/PixelLantern.vue` and `public/favicon.svg`.
 
 Add Markdown files under `content/blog/`:
 
@@ -65,7 +65,7 @@ pnpm exec playwright install chromium # first setup only
 pnpm verify
 ```
 
-This runs Oxlint, Nuxt type checking, Vitest, a production build, and Playwright journeys against the built server. The browser suite exercises search, keyboard navigation, content tools, mobile layouts, normal motion, and reduced motion.
+This runs Oxlint, ESLint design-system checks, Stylelint color checks, Nuxt type checking, Vitest, a production build, and Playwright journeys against the built server. The browser suite exercises search, keyboard navigation, content tools, mobile layouts, normal motion, and reduced motion. It also audits hydration and accessibility; a separate visual suite checks reviewed macOS Chromium baselines. See [browser verification](docs/testing.md) for commands, coverage, and platform requirements.
 
 ## Deploy to GitHub Pages
 

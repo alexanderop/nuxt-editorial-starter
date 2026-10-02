@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Menu, X, Search, Sun, Moon, Monitor } from '@lucide/vue'
+import IconButton from '~/components/ui/IconButton.vue'
+import ActionLink from '~/components/ui/ActionLink.vue'
 import { site } from '~~/shared/site'
 const route = useRoute()
 const menuOpen = ref(false)
@@ -74,25 +76,24 @@ function closeMenu(event: KeyboardEvent) {
     </nav>
     <div class="header-actions">
       <ClientOnly
-        ><button class="icon-button theme-toggle" :aria-label="themeLabel" @click="cycleTheme">
+        ><IconButton :label="themeLabel" tone="muted" compact @click="cycleTheme">
           <Sun v-if="colorMode.preference === 'light'" :size="17" /><Moon
             v-else-if="colorMode.preference === 'dark'"
-            :size="17"
-          /><Monitor v-else :size="17" /></button
-        ><template #fallback><span class="icon-button theme-placeholder" /></template
+            :size="17" /><Monitor v-else :size="17" /></IconButton
+        ><template #fallback><span class="icon-button" /></template
       ></ClientOnly>
-      <NuxtLink class="solid-button" :to="site.featuredPath"
-        >Start reading <span aria-hidden="true">↗</span></NuxtLink
+      <ActionLink :to="site.featuredPath"
+        >Start reading <span aria-hidden="true">↗</span></ActionLink
       >
-      <button
-        class="icon-button mobile-menu-button"
-        aria-label="Navigation menu"
+      <IconButton
+        class="hidden max-navigation:inline-flex"
+        label="Navigation menu"
         :aria-expanded="menuOpen"
         aria-controls="mobile-nav"
         @click="menuOpen = !menuOpen"
       >
         <X v-if="menuOpen" :size="22" /><Menu v-else :size="22" />
-      </button>
+      </IconButton>
     </div>
     <nav v-if="menuOpen" id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
       <NuxtLink

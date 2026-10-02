@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './test-utils'
 
 test.use({ reducedMotion: 'no-preference' })
 
@@ -28,28 +28,28 @@ test('normal motion releases post opacity after entrance, filtering, and load mo
   await expect(page.locator('main')).not.toHaveClass(/home-intro/)
   const rows = page.locator('.home-feed .post-row')
   await rows.nth(1).hover()
-  await expect.poll(() => opacity(rows.first())).toBe(0.36)
+  await expect.poll(() => opacity(rows.first())).toBe(0.9)
   await expect.poll(() => opacity(rows.nth(1))).toBe(1)
   await page.getByRole('heading', { level: 1 }).hover()
   await expect.poll(() => opacity(rows.first())).toBe(1)
   await page.getByRole('button', { name: 'Design', exact: true }).click()
   await rows.first().hover()
-  await expect.poll(() => opacity(rows.nth(1))).toBe(0.36)
+  await expect.poll(() => opacity(rows.nth(1))).toBe(0.9)
   await page.getByRole('button', { name: 'All', exact: true }).click()
   await page.getByRole('button', { name: 'Load more' }).click()
   await expect(rows).toHaveCount(12)
   await rows.last().hover()
-  await expect.poll(() => opacity(rows.nth(10))).toBe(0.36)
+  await expect.poll(() => opacity(rows.nth(10))).toBe(0.9)
   await page.keyboard.press('Tab')
   await rows.first().focus()
-  await expect.poll(() => opacity(rows.nth(1))).toBe(0.35)
+  await expect.poll(() => opacity(rows.nth(1))).toBe(0.9)
 })
 
 test('footer and workbench hover highlight independently of selection', async ({ page }) => {
   await page.goto('/')
   const tabs = page.getByRole('tablist', { name: 'Visual notes' }).getByRole('tab')
   await tabs.nth(1).hover()
-  await expect.poll(() => opacity(tabs.first())).toBe(0.35)
+  await expect.poll(() => opacity(tabs.first())).toBe(0.9)
   await expect(tabs.first()).toHaveAttribute('aria-selected', 'true')
   await expect.poll(() => opacity(tabs.nth(1).locator('.workbench-arrow'))).toBe(1)
   await tabs.nth(1).click()
@@ -60,12 +60,12 @@ test('footer and workbench hover highlight independently of selection', async ({
   await footer.getByRole('link', { name: 'Nuxt ↗', exact: true }).hover()
   await expect
     .poll(() => opacity(footer.getByRole('link', { name: 'Journal', exact: true })))
-    .toBe(0.35)
+    .toBe(0.9)
   await page.keyboard.press('Tab')
   await footer.getByRole('button', { name: 'Find a note' }).focus()
   await expect
     .poll(() => opacity(footer.getByRole('link', { name: 'Nuxt ↗', exact: true })))
-    .toBe(0.35)
+    .toBe(0.9)
 })
 
 test('article entrance plays on direct visits and article-to-article navigation', async ({

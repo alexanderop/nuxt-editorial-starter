@@ -1,0 +1,49 @@
+@theme {
+  --breakpoint-navigation: 62.5rem;
+  --color-*: initial;
+  --font-sans: 'Inter Variable', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+:root {
+  /* SVG luminance mask constants: reveal and cut out, independent of theme. */
+  --mask-reveal: white;
+  --mask-cutout: black;
+  --bg: #faf9f5;
+  --raised: #f1efe8;
+  --ink: #20201d;
+  --body: #53534c;
+  --muted: #5b5a53;
+  --faint: #a5a39a;
+  --line: #20201d20;
+  --accent: #a34d32;
+  --gutter: 36px;
+  --selection: #c56b4d40;
+  --overlay: #0005;
+  --shadow-dropdown: 0 10px 25px #0001;
+  --shadow-finder: 0 35px 90px #0005;
+  --ease: cubic-bezier(0.19, 1, 0.22, 1);
+  color-scheme: light;
+}
+:root.dark {
+  --bg: #141413;
+  --raised: #1e1e1b;
+  --ink: #f5f4ef;
+  --body: #b8b6ad;
+  --muted: #aaa79e;
+  --faint: #66645e;
+  --line: #f5f4ef20;
+  --accent: #df8c6c;
+  color-scheme: dark;
+}
+@theme inline {
+  --color-surface: var(--bg);
+  --color-raised: var(--raised);
+  --color-foreground: var(--ink);
+  --color-body: var(--body);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-border: var(--line);
+  --color-accent: var(--accent);
+  --color-action: var(--ink);
+  --color-action-foreground: var(--bg);
+}

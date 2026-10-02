@@ -133,17 +133,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', shortcut))
             {{ item }}
           </button>
         </div>
+        <p v-if="status === 'pending'" class="finder-empty" role="status">
+          Looking through the index…
+        </p>
+        <p v-else-if="error" class="finder-empty" role="alert">
+          The index is unavailable.
+          <button class="underlined" @click="execute()">Try again</button>
+        </p>
+        <p v-else-if="!results.length" class="finder-empty" role="status">
+          Nothing here yet. Try a different word.
+        </p>
         <div id="finder-results" class="finder-results" role="listbox" aria-label="Search results">
-          <p v-if="status === 'pending'" class="finder-empty" role="status">
-            Looking through the index…
-          </p>
-          <p v-else-if="error" class="finder-empty" role="alert">
-            The index is unavailable.
-            <button class="underlined" @click="execute()">Try again</button>
-          </p>
-          <p v-else-if="!results.length" class="finder-empty" role="status">
-            Nothing here yet. Try a different word.
-          </p>
           <div
             v-for="(result, index) in results"
             :id="`finder-result-${index}`"

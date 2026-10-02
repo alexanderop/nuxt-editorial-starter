@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './test-utils'
 
 const article = '/blog/building-for-the-long-way-round'
 test('filter, search, clear, and reveal remaining posts', async ({ page }) => {

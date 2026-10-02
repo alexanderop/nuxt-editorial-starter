@@ -15,7 +15,13 @@ export default defineNuxtConfig({
   runtimeConfig: { public: { siteUrl: 'http://localhost:5240' } },
   content: {
     experimental: { sqliteConnector: 'native' },
-    build: { markdown: { highlight: { theme: { default: 'github-light', dark: 'github-dark' } } } },
+    build: {
+      markdown: {
+        highlight: {
+          theme: { default: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
+        },
+      },
+    },
   },
   hooks: {
     'content:file:afterParse'({ file, content }) {

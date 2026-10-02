@@ -18,7 +18,12 @@ const { copy, message } = useCopy()
         {{ message === 'Copied' ? 'Copied ✓' : 'Copy' }}
       </button>
     </div>
-    <pre :class="$props.class"><slot /></pre>
+    <pre
+      :class="$props.class"
+      tabindex="0"
+      role="group"
+      :aria-label="`${filename || language || 'Plain text'} code`"
+    ><slot /></pre>
     <span class="sr-only" role="status">{{ message }}</span>
   </div>
 </template>

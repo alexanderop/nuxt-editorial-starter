@@ -44,7 +44,7 @@ function jump(event: MouseEvent, id: string) {
 }
 </script>
 <template>
-  <aside class="article-rail">
+  <aside class="article-rail" aria-label="Reading guide">
     <div class="rail-title" :class="{ visible: titleVisible }">{{ title }}</div>
     <nav class="contents-tree" aria-label="Table of contents">
       <h2 class="eyebrow">On this page</h2>

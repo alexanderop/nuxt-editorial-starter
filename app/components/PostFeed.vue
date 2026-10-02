@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import IconButton from '~/components/ui/IconButton.vue'
 import { Search, X } from '@lucide/vue'
 import { filterPosts, formatDate, orderPosts, type PostSummary } from '~~/shared/editorial'
 const props = withDefaults(
@@ -43,12 +44,12 @@ onMounted(() => window.addEventListener('keydown', shortcut))
 onBeforeUnmount(() => window.removeEventListener('keydown', shortcut))
 </script>
 <template>
-  <div class="post-feed">
+  <div>
     <div class="feed-toolbar" :class="{ 'search-is-open': searchOpen }">
       <CategoryFilter v-model="category" />
       <div v-if="searchable" class="inline-search">
         <button v-if="!searchOpen" aria-label="Search posts" @click="openSearch">
-          <span class="search-shortcut">[S]</span> Search
+          <span>[S]</span> Search
           <Search :size="13" class="small-search-icon" />
         </button>
         <template v-else
@@ -58,12 +59,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', shortcut))
             type="search"
             placeholder="Find a note…"
             aria-label="Search posts"
-            @keydown.esc="closeSearch" /><button
-            class="icon-button"
-            aria-label="Clear and close search"
+            @keydown.esc="closeSearch" /><IconButton
+            label="Clear and close search"
             @click="closeSearch"
           >
-            <X :size="15" /></button
+            <X :size="15" /></IconButton
         ></template>
       </div>
     </div>
@@ -96,7 +96,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', shortcut))
       No notes here yet. Try another category or search.
     </p>
     <div class="feed-end">
-      <button v-if="count < filtered.length" class="text-button" @click="count += 5">
+      <button v-if="count < filtered.length" class="feed-action" @click="count += 5">
         Load more <span aria-hidden="true">↓</span></button
       ><span v-else class="muted"
         >{{ filtered.length }} {{ filtered.length === 1 ? 'note' : 'notes' }} in the

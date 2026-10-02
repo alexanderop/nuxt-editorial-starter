@@ -42,8 +42,10 @@ const dots = Array.from({ length: 75 }, (_, i) => ({
             <circle cx="3" cy="3" r="1.3" fill="currentColor" />
           </pattern>
           <mask id="crescent">
-            <circle cx="202" cy="175" r="83" fill="white" />
-            <circle cx="235" cy="144" r="82" fill="black" />
+            <!-- Luminance mask: white reveals the shape. -->
+            <circle cx="202" cy="175" r="83" fill="var(--mask-reveal)" />
+            <!-- Luminance mask: black cuts out the crescent. -->
+            <circle cx="235" cy="144" r="82" fill="var(--mask-cutout)" />
           </mask>
         </defs>
         <circle

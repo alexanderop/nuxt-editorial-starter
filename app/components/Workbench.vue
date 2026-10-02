@@ -52,25 +52,28 @@ const current = computed(() => notes[selected.value] ?? notes[0]!)
       <span class="eyebrow muted">Small ideas, drawn out</span>
     </div>
     <div class="workbench-grid">
-      <div class="workbench-list" role="tablist" aria-label="Visual notes">
-        <button
-          v-for="(note, index) in notes"
-          :id="`note-tab-${index}`"
-          :key="note.title"
-          role="tab"
-          :aria-selected="selected === index"
-          :tabindex="selected === index ? 0 : -1"
-          @keydown="onTabKey"
-          aria-controls="workbench-panel"
-          @click="selected = index"
-        >
-          <span>{{ note.title }}</span
-          ><span class="workbench-arrow" aria-hidden="true">↗</span
-          ><small
-            >{{ note.category }}
-            <span>Visual note {{ String(index + 1).padStart(2, '0') }}</span></small
-          ></button
-        ><NuxtLink to="/about" class="eyebrow workbench-more"
+      <div>
+        <div class="workbench-list" role="tablist" aria-label="Visual notes">
+          <button
+            v-for="(note, index) in notes"
+            :id="`note-tab-${index}`"
+            :key="note.title"
+            role="tab"
+            :aria-selected="selected === index"
+            :tabindex="selected === index ? 0 : -1"
+            @keydown="onTabKey"
+            aria-controls="workbench-panel"
+            @click="selected = index"
+          >
+            <span>{{ note.title }}</span
+            ><span class="workbench-arrow" aria-hidden="true">↗</span
+            ><small
+              >{{ note.category }}
+              <span>Visual note {{ String(index + 1).padStart(2, '0') }}</span></small
+            >
+          </button>
+        </div>
+        <NuxtLink to="/about" class="eyebrow workbench-more"
           >A notebook, not a news cycle ↗</NuxtLink
         >
       </div>

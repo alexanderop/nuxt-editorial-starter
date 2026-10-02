@@ -21,20 +21,22 @@ const categories = ['All', ...site.categories]
     >
       {{ category }}
     </button>
-    <DropdownMenuRoot>
+    <DropdownMenuRoot :modal="false">
       <DropdownMenuTrigger class="category-more" aria-label="More categories"
         >···<span v-if="!['All', 'Engineering'].includes(model)" class="filter-dot"
       /></DropdownMenuTrigger>
       <DropdownMenuPortal
-        ><DropdownMenuContent class="dropdown" :side-offset="10" align="start"
-          ><DropdownMenuItem
-            v-for="category in categories.slice(2)"
-            :key="category"
-            class="dropdown-item"
-            @select="model = category"
-            >{{ category }} <span v-if="model === category">✓</span></DropdownMenuItem
-          ></DropdownMenuContent
-        ></DropdownMenuPortal
+        ><section aria-label="Article category filter">
+          <DropdownMenuContent class="dropdown" :side-offset="10" align="start"
+            ><DropdownMenuItem
+              v-for="category in categories.slice(2)"
+              :key="category"
+              class="dropdown-item"
+              @select="model = category"
+              >{{ category }} <span v-if="model === category">✓</span></DropdownMenuItem
+            ></DropdownMenuContent
+          >
+        </section></DropdownMenuPortal
       >
     </DropdownMenuRoot>
   </div>
