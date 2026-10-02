@@ -17,3 +17,5 @@ docs/starter-brief.md
 docs/implementation.md
 docs/motion-review.md
 scripts/build-reference-gallery.py
+
+dist/
