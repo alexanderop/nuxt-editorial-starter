@@ -1,0 +1,79 @@
+name: Dispatch Copilot fixes
+on:
+  # workflow_run uses the default-branch workflow, never PR-supplied code.
+  workflow_run:
+    workflows: [Running Copilot Code Review]
+    types: [completed]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: copilot-fix-dispatch
+  cancel-in-progress: false
+jobs:
+  dispatch:
+    if: vars.COPILOT_AUTO_FIX_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Request fixes as the authorized Copilot user
+        uses: actions/github-script@v8
+        with:
+          # Must be a user token: github-actions[bot] cannot delegate to Copilot.
+          github-token: ${{ secrets.COPILOT_FIX_TOKEN }}
+          script: |
+            const { nextFix, requestPrefix } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/copilot-fix-policy.ts`);
+            const { owner, repo } = context.repo;
+            const { data: identity } = await github.rest.users.getAuthenticated();
+            if (identity.type !== 'User') throw new Error('COPILOT_FIX_TOKEN must belong to a user with Copilot access');
+            const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({ owner, repo, username: identity.login });
+            if (!['admin', 'maintain', 'write'].includes(permission.permission)) throw new Error('Copilot requester needs repository write access');
+            const pulls = await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', base: context.payload.repository.default_branch, per_page: 100 });
+            for (const pull of pulls) {
+              if (pull.draft || pull.head.repo?.full_name !== `${owner}/${repo}`) continue;
+              // Do not let an external PR cause an authenticated agent session.
+              const { data: authorPermission } = await github.rest.repos.getCollaboratorPermissionLevel({ owner, repo, username: pull.user.login });
+              if (!['admin', 'maintain', 'write'].includes(authorPermission.permission)) continue;
+              const reviews = await github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: pull.number, per_page: 100 });
+              const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: pull.number, per_page: 100 });
+              const unresolvedReviewIds = [];
+              let cursor = null;
+              do {
+                const result = await github.graphql(`query($owner:String!,$repo:String!,$number:Int!,$cursor:String) {
+                  repository(owner:$owner,name:$repo) { pullRequest(number:$number) {
+                    reviewThreads(first:100,after:$cursor) {
+                      pageInfo { hasNextPage endCursor }
+                      nodes { isResolved comments(first:1) { nodes { pullRequestReview { databaseId } } } }
+                    }
+                  } }
+                }`, { owner, repo, number: pull.number, cursor });
+                const threads = result.repository.pullRequest.reviewThreads;
+                for (const thread of threads.nodes) {
+                  const id = thread.comments.nodes[0]?.pullRequestReview?.databaseId;
+                  if (!thread.isResolved && Number.isSafeInteger(id)) unresolvedReviewIds.push(id);
+                }
+                cursor = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
+              } while (cursor);
+              const decision = nextFix({
+                open: pull.state === 'open', draft: pull.draft, sameRepository: true, trustedAuthor: true,
+                paused: pull.labels.some(label => label.name === 'copilot-fix-paused'), head: pull.head.sha,
+                reviews: reviews.map(review => ({ id: review.id, author: review.user?.login, state: review.state, commit: review.commit_id })),
+                unresolvedReviewIds,
+                previousRequests: comments.filter(comment => comment.user?.login === identity.login && comment.body?.startsWith(requestPrefix)).map(comment => comment.body),
+              });
+              if (!decision) continue;
+              // Recheck the branch immediately before dispatch; the prompt also binds the work to this SHA.
+              const { data: fresh } = await github.rest.pulls.get({ owner, repo, pull_number: pull.number });
+              if (fresh.state !== 'open' || fresh.draft || fresh.head.sha !== pull.head.sha || fresh.labels.some(label => label.name === 'copilot-fix-paused')) continue;
+              await github.rest.issues.createComment({ owner, repo, issue_number: pull.number, body:
+                `${decision.marker}\n@copilot After Copilot review ${decision.reviewId}, triage all still-unresolved Copilot review threads for head ${pull.head.sha}. First verify that this is still the PR head; stop if it changed. Triage findings against the code, fix valid issues on this PR branch, add useful regression tests, run the documented checks, and push the repairs. Explain dismissed findings and leave uncertain findings unresolved. Resolve threads only after verifying the fixes. Read AGENTS.md and .github/copilot-instructions.md. Do not change workflows, credentials, branch rules, dependencies, enforcement tests, or screenshot baselines. Do not approve or merge the PR. If a repair requires protected changes, stop and explain the blocker.`
+              });
+              core.info(`Requested Copilot repair for PR #${pull.number}, review ${decision.reviewId}`);
+            }

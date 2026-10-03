@@ -69,9 +69,21 @@ This runs Oxlint, ESLint design-system checks, Stylelint color checks, Nuxt type
 
 ## Deploy to GitHub Pages
 
+For Copilot review, automatic fixes, and gated merging, see [the AI workflow](docs/ai-workflow.md).
+PRs run the same build and visual checks as deployment. `pnpm pr:automerge` starts
+Copilot CLI's repair loop; GitHub merges only after the repository requirements pass.
+The hosted Copilot fix dispatcher can also request repairs automatically after
+reviews; its one-time credential setup is documented in the AI workflow.
+
+Automatic repair dispatch is currently paused. The [reusable setup guide and
+workflow examples](https://gist.github.com/alexanderop/2b0e963c2f6f49b7843573a3d96127cc)
+cover installation in another project, token permissions, acceptance testing,
+and optional gated merging. The complete unattended loop has not yet been
+verified; enabling review alone does not enable repairs or merging.
+
 1. Create a repository with **Use this template**, or fork this project.
 2. In **Settings → Pages → Build and deployment**, select **GitHub Actions**.
-3. Push to `main` or run **Deploy GitHub Pages** from the Actions tab.
+3. Push to `main` or run **Verify and deploy** from the Actions tab.
 
 The included workflow verifies the app, generates static HTML, and deploys `.output/public`. Pages metadata supplies the repository base path and public URL automatically. There is no runtime server: articles, search, Markdown downloads, RSS, sitemap, and the content database are generated at build time. Publish new content by committing it and letting the workflow redeploy.
 
