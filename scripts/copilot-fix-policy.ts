@@ -32,7 +32,13 @@ export function nextFix(context: FixContext): Readonly<{ reviewId: number; marke
       && review.commit === context.head && Number.isSafeInteger(review.id) && review.id > 0
       && ['COMMENTED', 'CHANGES_REQUESTED', 'APPROVED'].includes(review.state))
     .reduce<Review | undefined>((last, review) => !last || review.id > last.id ? review : last, undefined)
-  if (!latest || latest.state === 'APPROVED' || !context.unresolvedReviewIds.includes(latest.id)) return null
+  // Re-reviews can keep findings in existing threads instead of posting new
+  // comments. Include those threads, but only after a review of the current head.
+  const hasFindings = context.reviews.some((review) =>
+    review.author === 'copilot-pull-request-reviewer[bot]'
+    && ['COMMENTED', 'CHANGES_REQUESTED'].includes(review.state)
+    && context.unresolvedReviewIds.includes(review.id))
+  if (!latest || latest.state === 'APPROVED' || !hasFindings) return null
   const marker = `${requestPrefix}${latest.id}:${context.head} -->`
   if (attempts.some((body) => body.startsWith(marker))) return null
   return { reviewId: latest.id, marker }

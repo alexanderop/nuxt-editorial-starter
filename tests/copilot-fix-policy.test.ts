@@ -35,4 +35,10 @@ describe('automatic Copilot repair policy', () => {
   it('does not act on old findings after a newer approval', () => {
     expect(nextFix({ ...context, reviews: [...context.reviews, { ...context.reviews[0]!, id: 11, state: 'APPROVED' }] })).toBeNull()
   })
+  it('includes existing unresolved threads when the current head has been re-reviewed', () => {
+    expect(nextFix({ ...context, reviews: [
+      { ...context.reviews[0]!, commit: 'b'.repeat(40) },
+      { ...context.reviews[0]!, id: 11 },
+    ] })?.reviewId).toBe(11)
+  })
 })
