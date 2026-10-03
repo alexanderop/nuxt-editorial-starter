@@ -77,7 +77,7 @@ reviews; its one-time credential setup is documented in the AI workflow.
 
 1. Create a repository with **Use this template**, or fork this project.
 2. In **Settings → Pages → Build and deployment**, select **GitHub Actions**.
-3. Push to `main` or run **Deploy GitHub Pages** from the Actions tab.
+3. Push to `main` or run **Verify and deploy** from the Actions tab.
 
 The included workflow verifies the app, generates static HTML, and deploys `.output/public`. Pages metadata supplies the repository base path and public URL automatically. There is no runtime server: articles, search, Markdown downloads, RSS, sitemap, and the content database are generated at build time. Publish new content by committing it and letting the workflow redeploy.
 
