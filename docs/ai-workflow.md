@@ -19,9 +19,9 @@ Stopping the dispatcher does not cancel a Copilot session already started.
 Activation requires a one-time credential setup after merging these files:
 
 1. Create a fine-grained GitHub user token restricted to this repository, from
-   a user with write access and an active Copilot plan. Grant Contents read,
-   Pull requests read/write, and Issues read/write. Do not grant Contents write
-   or workflow-editing permissions; the dispatcher only requests work.
+   a user with write access and an active Copilot plan. Grant only Pull requests
+   read/write (Metadata read is included automatically). Do not grant Contents,
+   Issues, or workflow permissions; the dispatcher only requests work.
 2. Store it as the repository Actions secret `COPILOT_FIX_TOKEN` using GitHub's
    secrets UI or `gh secret set COPILOT_FIX_TOKEN` (interactive input). Never
    put the token in a PR, chat, source file, or command-line argument.
