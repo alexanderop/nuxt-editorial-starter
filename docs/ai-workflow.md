@@ -49,6 +49,9 @@ in GitHub settings before it can satisfy the approval requirement.
 
 GitHub settings and rulesets do not travel with template files. Replace the
 reviewer in `.github/CODEOWNERS`. Enable **Allow auto-merge** in General settings.
+The two ruleset definitions are versioned in `.github/rulesets/`; import them
+through GitHub's ruleset UI or its REST API. Review their administrator PR-only
+bypass before importing. It is for deliberate human intervention, not agents.
 Create an active default-branch ruleset with the checks and review requirements
 above, prevent force pushes/deletion, and enable **Automatically request Copilot
 code review → Review new pushes**. Enable draft reviews if desired.
