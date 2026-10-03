@@ -1,16 +1,19 @@
-name: Deploy GitHub Pages
+name: Verify and deploy
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: pages
+  group: pages-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
@@ -19,6 +22,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - name: Configure Pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         id: pages
         uses: actions/configure-pages@v5
       - run: pnpm install --frozen-lockfile
@@ -35,14 +39,16 @@ jobs:
       - name: Generate static site
         run: pnpm generate && node scripts/check-static.mjs
         env:
-          NUXT_APP_BASE_URL: ${{ steps.pages.outputs.base_path }}/
-          NUXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}/
+          NUXT_APP_BASE_URL: ${{ steps.pages.outcome == 'success' && format('{0}/', steps.pages.outputs.base_path) || format('/{0}/', github.event.repository.name) }}
+          NUXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}/
       - uses: actions/upload-pages-artifact@v4
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: .output/public
   visual:
     # Screenshot baselines are reviewed on macOS; do not compare Linux font rendering to them.
     runs-on: macos-15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
@@ -61,6 +67,7 @@ jobs:
             test-results/
             playwright-report/
   deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: [build, visual]
     runs-on: ubuntu-latest
     permissions:

@@ -1,0 +1,16 @@
+# Template users: replace @alexanderop with your own reviewer or team.
+# These files control the verification and automation boundary.
+/.github/ @alexanderop
+/AGENTS.md @alexanderop
+/package.json @alexanderop
+/pnpm-lock.yaml @alexanderop
+/pnpm-workspace.yaml @alexanderop
+/scripts/ @alexanderop
+/*config* @alexanderop
+/tsconfig*.json @alexanderop
+/tests/e2e/*-snapshots/ @alexanderop
+/tests/e2e/test-utils.ts @alexanderop
+/tests/e2e/a11y-scenarios.ts @alexanderop
+/tests/design-system.test.ts @alexanderop
+/tests/a11y-coverage.test.ts @alexanderop
+/docs/ai-workflow.md @alexanderop

@@ -69,6 +69,10 @@ This runs Oxlint, ESLint design-system checks, Stylelint color checks, Nuxt type
 
 ## Deploy to GitHub Pages
 
+For Copilot review, automatic fixes, and gated merging, see [the AI workflow](docs/ai-workflow.md).
+PRs run the same build and visual checks as deployment. `pnpm pr:automerge` starts
+Copilot CLI's repair loop; GitHub merges only after the repository requirements pass.
+
 1. Create a repository with **Use this template**, or fork this project.
 2. In **Settings → Pages → Build and deployment**, select **GitHub Actions**.
 3. Push to `main` or run **Deploy GitHub Pages** from the Actions tab.
