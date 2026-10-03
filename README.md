@@ -72,6 +72,8 @@ This runs Oxlint, ESLint design-system checks, Stylelint color checks, Nuxt type
 For Copilot review, automatic fixes, and gated merging, see [the AI workflow](docs/ai-workflow.md).
 PRs run the same build and visual checks as deployment. `pnpm pr:automerge` starts
 Copilot CLI's repair loop; GitHub merges only after the repository requirements pass.
+The hosted Copilot fix dispatcher can also request repairs automatically after
+reviews; its one-time credential setup is documented in the AI workflow.
 
 1. Create a repository with **Use this template**, or fork this project.
 2. In **Settings → Pages → Build and deployment**, select **GitHub Actions**.

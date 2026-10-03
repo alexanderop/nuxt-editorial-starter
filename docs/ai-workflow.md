@@ -1,5 +1,46 @@
 # AI review and repair
 
+## Automatic hosted fixes
+
+`.github/workflows/copilot-auto-fix.yml` checks after Copilot review completes,
+and every 15 minutes as a fallback. It sends a targeted `@copilot` request for
+unresolved findings on the current commit. Copilot cloud agent then triages,
+repairs, tests, and pushes to the PR branch; review-on-push requests a new review.
+No local CLI session or manual mention is needed once this dispatcher is enabled.
+
+The dispatcher runs only trusted default-branch code and never checks out or
+executes PR code with its credential. It processes ready, same-repository PRs
+authored by users with write access. Forks and external authors are skipped.
+Bot-authored PRs are not included in this initial policy. It sends at most one
+request per review and at most three requests per PR. Add `copilot-fix-paused`
+to a PR, or set `COPILOT_AUTO_FIX_ENABLED` to `false`, to stop future requests.
+Stopping the dispatcher does not cancel a Copilot session already started.
+
+Activation requires a one-time credential setup after merging these files:
+
+1. Create a fine-grained GitHub user token restricted to this repository, from
+   a user with write access and an active Copilot plan. Grant Contents read,
+   Pull requests read/write, and Issues read/write. Do not grant Contents write
+   or workflow-editing permissions; the dispatcher only requests work.
+2. Store it as the repository Actions secret `COPILOT_FIX_TOKEN` using GitHub's
+   secrets UI or `gh secret set COPILOT_FIX_TOKEN` (interactive input). Never
+   put the token in a PR, chat, source file, or command-line argument.
+3. Set the Actions variable `COPILOT_AUTO_FIX_ENABLED` to `true`, then manually
+   run **Dispatch Copilot fixes** once. Verify an eligible review produces one
+   request and a **Copilot has started work** event. A second run must not
+   duplicate the request. Missing credentials or API failures fail the job.
+4. GitHub normally requires approval to run Actions after a cloud-agent push.
+   To make the entire loop unattended, configure that behavior explicitly in
+   **Settings → Copilot → Cloud agent**. Copilot approval counting is a separate
+   setting; it does not activate repairs or approve workflow execution.
+
+The credential and enable variable are not created by template files. Until
+they are configured and a hosted run is verified, automatic dispatch is pending.
+The default `GITHUB_TOKEN` is deliberately not used to post requests because
+Copilot responds to users with write access, not arbitrary bot mentions.
+
+## Optional local repair loop
+
 Work on a feature branch. With GitHub Copilot CLI installed and signed in:
 
 ```sh
@@ -63,10 +104,10 @@ If you authored a protected-file PR yourself, ask another eligible human reviewe
 or deliberately use the administrator's audited PR-only bypass. Agents must
 never use that bypass.
 
-Native cloud-agent automations currently support private/internal repositories
-only. For this public starter, automatic repair is the CLI session above, not an
-always-running hosted service. A fully hosted repair runner would need separate
-authentication and deployment. No access token is stored by this setup.
+Native cloud-agent Automations currently support private/internal repositories
+only. The hosted dispatcher above is an ordinary GitHub Actions workflow using
+the supported user-mention handoff, rather than that private-repository feature.
+The token authenticates the request; Copilot runs its own cloud environment.
 
 ## Verification and limits
 

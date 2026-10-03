@@ -13,4 +13,5 @@
 /tests/e2e/a11y-scenarios.ts @alexanderop
 /tests/design-system.test.ts @alexanderop
 /tests/a11y-coverage.test.ts @alexanderop
+/tests/copilot-fix-policy.test.ts @alexanderop
 /docs/ai-workflow.md @alexanderop
