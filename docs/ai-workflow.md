@@ -1,5 +1,31 @@
 # AI review and repair
 
+## Current status and reusable guide
+
+Automatic repair dispatch is paused: the repository variable
+`COPILOT_AUTO_FIX_ENABLED` is `false`, and no `COPILOT_FIX_TOKEN` has been added.
+Keep it disabled until the setup is merged, the credential is configured, and
+you are ready to run the acceptance test. These are repository settings, not
+defaults that automatically transfer when using this template.
+
+The [reusable setup guide](https://gist.github.com/alexanderop/2b0e963c2f6f49b7843573a3d96127cc)
+includes the workflow, TypeScript policy, policy tests, token creation steps,
+merge requirements, and troubleshooting for other projects. It is an unlisted
+gist, readable by anyone with its link.
+
+Verified during setup:
+
+- A ruleset requested Copilot review automatically, including on the
+  [deliberate date-ordering regression](https://github.com/alexanderop/nuxt-editorial-starter/pull/2).
+- A manually posted, user-authenticated request started the cloud agent, which
+  [committed the README repair](https://github.com/alexanderop/nuxt-editorial-starter/commit/8386a1ebdedca31f79186f19b316e9a7fb8d05ec).
+- The dispatch policy passed 19 tests. Full local verification and hosted
+  build/visual checks passed during setup.
+
+The scheduled dispatcher with a fine-grained token, automatic CI execution
+after agent pushes, approval counting, and unattended merging have **not** been
+verified end to end. A successful manual handoff does not prove that full loop.
+
 ## Automatic hosted fixes
 
 `.github/workflows/copilot-auto-fix.yml` checks after Copilot review completes,
@@ -115,6 +141,20 @@ Run `actionlint` after workflow edits. Use a PR to verify that build and visual
 execute, deploy skips, and a new push invalidates approval. Check the Actions
 logs and actual review state: a skipped bot review or empty comments are not
 proof of success. Check the deployed site separately after merge.
+
+For a first activation, keep auto-merge off on a ready test PR with a harmless
+regression and an existing failing test. Wait for Copilot's finding, then run
+the dispatcher without manually mentioning Copilot. Check for the dispatch
+marker, a cloud-agent session, an actual repair commit, passing CI on that
+commit, and a fresh review. Run the dispatcher again to check deduplication.
+Test `copilot-fix-paused` and the three-request cap before relying on unattended
+repairs. Test automatic merging separately after the repair path works.
+
+The dispatcher handles unresolved Copilot review threads, not standalone CI
+failures. It never enables auto-merge itself. Its retry history depends on
+retained comments from the same requester identity; deleting those comments
+or changing the token owner can reset the count. Scheduled runs may be delayed.
+Pausing dispatch does not cancel a cloud-agent session already in progress.
 
 Sources: [Copilot PR commands](https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/manage-pull-requests),
 [review configuration](https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-code-review),

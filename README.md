@@ -75,6 +75,12 @@ Copilot CLI's repair loop; GitHub merges only after the repository requirements 
 The hosted Copilot fix dispatcher can also request repairs automatically after
 reviews; its one-time credential setup is documented in the AI workflow.
 
+Automatic repair dispatch is currently paused. The [reusable setup guide and
+workflow examples](https://gist.github.com/alexanderop/2b0e963c2f6f49b7843573a3d96127cc)
+cover installation in another project, token permissions, acceptance testing,
+and optional gated merging. The complete unattended loop has not yet been
+verified; enabling review alone does not enable repairs or merging.
+
 1. Create a repository with **Use this template**, or fork this project.
 2. In **Settings → Pages → Build and deployment**, select **GitHub Actions**.
 3. Push to `main` or run **Verify and deploy** from the Actions tab.
